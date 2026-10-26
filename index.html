@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suki Mini POS</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #ffffff;
+      color: #1f2937;
+      line-height: 1.5;
+    }
+
+    main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px 16px 48px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+    }
+
+    section {
+      margin-bottom: 28px;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .menu-item-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      display: block;
+    }
+
+    .menu-item-price {
+      font-size: 0.95rem;
+      color: #6b7280;
+      display: block;
+    }
+
+    .add-btn {
+      background: #1f2937;
+      color: #ffffff;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 22px;
+      font-size: 1rem;
+      min-width: 76px;
+      min-height: 48px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .add-btn:active {
+      background: #4b5563;
+    }
+
+    .cart-list {
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 1rem;
+    }
+
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 14px 0;
+    }
+
+    .empty-cart {
+      color: #6b7280;
+      text-align: center;
+      padding: 12px 0;
+    }
+
+    .clear-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid #b91c1c;
+      background: #ffffff;
+      color: #b91c1c;
+      font-size: 1rem;
+      font-weight: 600;
+      min-height: 48px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Suki Mini POS</h1>
+
+    <section>
+      <h2>เมนู</h2>
+      <div class="menu" id="menu">
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">ชุดหมู</span>
+            <span class="menu-item-price">199 บาท</span>
+          </div>
+          <button class="add-btn" data-name="ชุดหมู" data-price="199">เพิ่ม</button>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">ชุดเนื้อ</span>
+            <span class="menu-item-price">249 บาท</span>
+          </div>
+          <button class="add-btn" data-name="ชุดเนื้อ" data-price="249">เพิ่ม</button>
+        </div>
+        <div class="menu-item">
+          <div>
+            <span class="menu-item-name">น้ำดื่ม</span>
+            <span class="menu-item-price">20 บาท</span>
+          </div>
+          <button class="add-btn" data-name="น้ำดื่ม" data-price="20">เพิ่ม</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>ตะกร้า</h2>
+      <div class="cart-list" id="cart-list"></div>
+      <div class="cart-total">
+        <span>ยอดรวม</span>
+        <span id="cart-total">0 บาท</span>
+      </div>
+      <button id="clear-cart" class="clear-btn">ล้างตะกร้า</button>
+    </section>
+  </main>
+
+  <script>
+    const cart = [];
+
+    function addItem(name, price) {
+      const existing = cart.find((item) => item.name === name);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.push({ name: name, price: price, qty: 1 });
+      }
+      renderCart();
+    }
+
+    function renderCart() {
+      const list = document.getElementById("cart-list");
+      list.innerHTML = "";
+
+      if (cart.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "empty-cart";
+        empty.textContent = "ยังไม่มีรายการในตะกร้า";
+        list.appendChild(empty);
+      }
+
+      let total = 0;
+      cart.forEach((item) => {
+        const subtotal = item.price * item.qty;
+        total += subtotal;
+        const row = document.createElement("div");
+        row.className = "cart-item";
+        row.innerHTML =
+          "<span>" + item.name + " × " + item.qty + "</span>" +
+          "<span>" + subtotal + " บาท</span>";
+        list.appendChild(row);
+      });
+
+      document.getElementById("cart-total").textContent = total + " บาท";
+    }
+
+    function clearCart() {
+      cart.length = 0;
+      renderCart();
+    }
+
+    document.querySelectorAll(".add-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        addItem(this.dataset.name, Number(this.dataset.price));
+      });
+    });
+
+    document.getElementById("clear-cart").addEventListener("click", function () {
+      clearCart();
+    });
+
+    renderCart();
+  </script>
+</body>
+</html>
